@@ -1,0 +1,50 @@
+.mdx-preview-container {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+}
+
+.mdx-preview-iframe {
+	flex: 1 1 auto;
+	width: 100%;
+	border: none;
+	background: var(--background-primary);
+}
+
+.mdx-preview-empty {
+	padding: 16px;
+	color: var(--text-muted);
+}
+
+.mdx-preview-status {
+	padding: 8px 16px;
+	color: var(--text-muted);
+	font-size: 0.85em;
+}
+
+.mdx-consent-gate {
+	padding: 24px;
+	max-width: 480px;
+}
+
+.mdx-consent-gate button {
+	margin-top: 8px;
+}
+
+.mdx-preview-warnings {
+	padding: 8px 16px;
+	font-size: 0.8em;
+	color: var(--text-warning, #d9822b);
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.mdx-error {
+	padding: 16px;
+	color: var(--text-error, #c0392b);
+}
+
+.mdx-error pre {
+	white-space: pre-wrap;
+	word-break: break-word;
+}

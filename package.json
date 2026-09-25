@@ -1,0 +1,42 @@
+{
+  "name": "obsidian-mdx-view",
+  "version": "0.1.0",
+  "description": "Create, edit, and preview .mdx files in Obsidian with a sandboxed JSX renderer.",
+  "main": "main.js",
+  "scripts": {
+    "build:runtime": "node scripts/build-runtime.mjs",
+    "copy:wasm": "node -e \"require('fs').copyFileSync('node_modules/esbuild-wasm/esbuild.wasm','esbuild.wasm')\"",
+    "dev": "npm run build:runtime && npm run copy:wasm && node esbuild.config.mjs watch",
+    "build": "cross-env NODE_ENV=production node scripts/build-runtime.mjs && npm run copy:wasm && tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+    "typecheck": "tsc -noEmit -skipLibCheck"
+  },
+  "keywords": [
+    "obsidian-plugin",
+    "mdx"
+  ],
+  "author": "Vijay Kasibhatla",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "builtin-modules": "^3.3.0",
+    "cross-env": "^10.1.0",
+    "esbuild": "^0.21.5",
+    "obsidian": "^1.5.7-1",
+    "tslib": "2.6.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@mdx-js/mdx": "^3.0.1",
+    "esbuild-wasm": "^0.28.2",
+    "mermaid": "^11.17.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rehype-highlight": "^7.0.2",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx-frontmatter": "^5.2.0",
+    "unist-util-visit": "^5.1.0"
+  }
+}

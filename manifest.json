@@ -1,0 +1,10 @@
+{
+	"id": "mdx-view",
+	"name": "MDX View",
+	"version": "0.1.0",
+	"minAppVersion": "1.5.0",
+	"description": "Create, edit (via the native Markdown/CodeMirror editor) and preview .mdx files with a sandboxed JSX renderer and support for vault-supplied custom components.",
+	"author": "Vijay Kasibhatla",
+	"authorUrl": "",
+	"isDesktopOnly": false
+}
