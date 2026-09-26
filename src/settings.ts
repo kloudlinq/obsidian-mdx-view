@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting, type SettingDefinitionItem } from "obsidian";
 import type MdxViewPlugin from "./main";
 
 export interface MdxViewSettings {
@@ -35,35 +35,84 @@ export class MdxViewSettingTab extends PluginSettingTab {
 		this.plugin = plugin;
 	}
 
+	/**
+	 * Declarative settings (Obsidian 1.13.0+): gives this tab's settings
+	 * search indexing and the standard settings-search UI. Each row is
+	 * still rendered by the same `buildXRow` methods `display()` uses below,
+	 * so behavior is identical either way — only how the row gets built
+	 * (imperatively vs. via the declarative API) differs.
+	 */
+	getSettingDefinitions(): SettingDefinitionItem[] {
+		return [
+			{
+				name: "Components bundle",
+				desc: this.bundleDesc(),
+				render: (setting) => this.buildBundleRow(setting),
+			},
+			{
+				name: "Components source (optional)",
+				desc: this.sourceDesc(),
+				render: (setting) => this.buildSourceRow(setting),
+			},
+			{
+				name: "Preview debounce (ms)",
+				desc: "How long to wait after you stop typing before re-rendering the preview.",
+				render: (setting) => this.buildDebounceRow(setting),
+			},
+		];
+	}
+
+	/**
+	 * Imperative fallback for Obsidian versions older than 1.13.0, which
+	 * don't know about `getSettingDefinitions()`. Not called on 1.13.0+ (see
+	 * `SettingTab.display()`'s doc comment in obsidian.d.ts).
+	 */
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl)
-			.setName("Components bundle")
-			.setDesc(
-				"Vault-relative path to a pre-bundled .js file that sets " +
-					"window.__mdxComponents. This is what the preview reads. Build it " +
-					"yourself, or set a source entry below and use \"Rebuild\"."
-			)
-			.addText((text) =>
-				text
-					.setPlaceholder("_components/bundle.js")
-					.setValue(this.plugin.settings.componentsBundlePath)
-					.onChange(async (value) => {
-						this.plugin.settings.componentsBundlePath = value.trim();
-						await this.plugin.saveSettings();
-					})
-			);
+		this.buildBundleRow(new Setting(containerEl).setName("Components bundle").setDesc(this.bundleDesc()));
+		this.buildSourceRow(
+			new Setting(containerEl).setName("Components source (optional)").setDesc(this.sourceDesc())
+		);
+		this.buildDebounceRow(
+			new Setting(containerEl)
+				.setName("Preview debounce (ms)")
+				.setDesc("How long to wait after you stop typing before re-rendering the preview.")
+		);
+	}
 
-		new Setting(containerEl)
-			.setName("Components source (optional)")
-			.setDesc(
-				"Vault-relative entry file (e.g. _components/index.tsx) with named " +
-					"exports for your React components. \"Rebuild\" compiles it with an " +
-					"in-app esbuild-wasm bundler — fully offline, no CDN — and writes " +
-					"the result to the components bundle path above."
-			)
+	private bundleDesc(): string {
+		return (
+			"Vault-relative path to a pre-bundled .js file that sets " +
+			"window.__mdxComponents. This is what the preview reads. Build it " +
+			"yourself, or set a source entry below and use \"Rebuild\"."
+		);
+	}
+
+	private sourceDesc(): string {
+		return (
+			"Vault-relative entry file (e.g. _components/index.tsx) with named " +
+			"exports for your React components. \"Rebuild\" compiles it with an " +
+			"in-app esbuild-wasm bundler — fully offline, no CDN — and writes " +
+			"the result to the components bundle path above."
+		);
+	}
+
+	private buildBundleRow(setting: Setting): void {
+		setting.addText((text) =>
+			text
+				.setPlaceholder("_components/bundle.js")
+				.setValue(this.plugin.settings.componentsBundlePath)
+				.onChange(async (value) => {
+					this.plugin.settings.componentsBundlePath = value.trim();
+					await this.plugin.saveSettings();
+				})
+		);
+	}
+
+	private buildSourceRow(setting: Setting): void {
+		setting
 			.addText((text) =>
 				text
 					.setPlaceholder("_components/index.tsx")
@@ -86,20 +135,19 @@ export class MdxViewSettingTab extends PluginSettingTab {
 						}
 					})
 			);
+	}
 
-		new Setting(containerEl)
-			.setName("Preview debounce (ms)")
-			.setDesc("How long to wait after you stop typing before re-rendering the preview.")
-			.addText((text) =>
-				text.setValue(String(this.plugin.settings.previewDebounceMs)).onChange(async (value) => {
-					const n = Number(value);
-					if (Number.isFinite(n) && n >= 0) {
-						this.plugin.settings.previewDebounceMs = n;
-						await this.plugin.saveSettings();
-					} else {
-						new Notice("Preview debounce must be a non-negative number.");
-					}
-				})
-			);
+	private buildDebounceRow(setting: Setting): void {
+		setting.addText((text) =>
+			text.setValue(String(this.plugin.settings.previewDebounceMs)).onChange(async (value) => {
+				const n = Number(value);
+				if (Number.isFinite(n) && n >= 0) {
+					this.plugin.settings.previewDebounceMs = n;
+					await this.plugin.saveSettings();
+				} else {
+					new Notice("Preview debounce must be a non-negative number.");
+				}
+			})
+		);
 	}
 }
