@@ -5,11 +5,13 @@
   "main": "main.js",
   "license": "MIT",
   "scripts": {
+    "prepare": "node scripts/build-runtime.mjs",
     "build:runtime": "node scripts/build-runtime.mjs",
     "copy:wasm": "node -e \"require('fs').copyFileSync('node_modules/esbuild-wasm/esbuild.wasm','esbuild.wasm')\"",
     "dev": "npm run build:runtime && npm run copy:wasm && node esbuild.config.mjs watch",
     "build": "cross-env NODE_ENV=production node scripts/build-runtime.mjs && npm run copy:wasm && tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-    "typecheck": "tsc -noEmit -skipLibCheck"
+    "typecheck": "tsc -noEmit -skipLibCheck",
+    "lint": "eslint ."
   },
   "keywords": [
     "obsidian-plugin",
@@ -20,9 +22,11 @@
     "@types/node": "^20.12.7",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "builtin-modules": "^3.3.0",
+    "@typescript-eslint/parser": "^8.70.1",
     "cross-env": "^10.1.0",
     "esbuild": "^0.21.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-obsidianmd": "^0.4.2",
     "obsidian": "^1.5.7-1",
     "tslib": "2.6.2",
     "typescript": "^5.4.5"
@@ -36,7 +40,7 @@
     "rehype-highlight": "^7.0.2",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
-    "remark-mdx-frontmatter": "^5.2.0",
+    "remark-mdx-frontmatter": "^6.0.0",
     "unist-util-visit": "^5.1.0"
   }
 }

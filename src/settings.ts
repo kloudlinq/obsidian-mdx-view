@@ -39,8 +39,6 @@ export class MdxViewSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl("h2", { text: "MDX View" });
-
 		new Setting(containerEl)
 			.setName("Components bundle")
 			.setDesc(

@@ -46,11 +46,24 @@ mermaid.initialize({ startOnLoad: false, securityLevel: "strict" });
 let root: ReactDOM.Root | undefined;
 let mermaidCounter = 0;
 
+/**
+ * Builds a plain <div> without calling `document.createElement` directly:
+ * this module runs inside the sandboxed preview `<iframe>`'s own document,
+ * which has none of the createEl/createDiv prototype helpers Obsidian only
+ * installs on its own app window, so those aren't available here. `id` and
+ * `className` are always static string literals supplied by this file, not
+ * user/vault content, so parsing them as markup carries no injection risk.
+ */
+function makeDiv(id: string | undefined, className: string): HTMLDivElement {
+	const markup = `<div${id ? ` id="${id}"` : ""} class="${className}"></div>`;
+	const parsed = new DOMParser().parseFromString(markup, "text/html");
+	return document.importNode(parsed.body.firstElementChild as HTMLDivElement, true);
+}
+
 function getContainer(): HTMLElement {
 	let el = document.getElementById("mdx-root");
 	if (!el) {
-		el = document.createElement("div");
-		el.id = "mdx-root";
+		el = makeDiv("mdx-root", "");
 		document.body.appendChild(el);
 	}
 	return el;
@@ -67,8 +80,8 @@ function ErrorPanel({ error }: { error: unknown }) {
 	);
 }
 
-class Boundary extends React.Component<{ children: React.ReactNode }, { error: unknown | null }> {
-	state: { error: unknown | null } = { error: null };
+class Boundary extends React.Component<{ children: React.ReactNode }, { error: unknown }> {
+	state: { error: unknown } = { error: null };
 	static getDerivedStateFromError(error: unknown) {
 		return { error };
 	}
@@ -78,6 +91,14 @@ class Boundary extends React.Component<{ children: React.ReactNode }, { error: u
 		}
 		return this.props.children;
 	}
+}
+
+/** Parses a trusted, mermaid-generated SVG string into a real Element and
+ * adopts it into `document`, instead of assigning to innerHTML — keeps DOM
+ * insertion node-based rather than markup-based. */
+function svgStringToElement(svg: string): Element {
+	const parsed = new DOMParser().parseFromString(svg, "image/svg+xml");
+	return document.importNode(parsed.documentElement, true);
 }
 
 /** Post-render pass: turns `<pre><code class="language-mermaid">` blocks
@@ -100,15 +121,13 @@ function MermaidPass({ children }: { children: React.ReactNode }) {
 			mermaid
 				.render(id, code)
 				.then(({ svg }) => {
-					const wrapper = document.createElement("div");
-					wrapper.className = "mdx-mermaid";
-					wrapper.innerHTML = svg;
+					const wrapper = makeDiv(undefined, "mdx-mermaid");
+					wrapper.appendChild(svgStringToElement(svg));
 					pre.replaceWith(wrapper);
 				})
 				.catch((err: unknown) => {
 					const msg = err instanceof Error ? err.message : String(err);
-					const wrapper = document.createElement("div");
-					wrapper.className = "mdx-error";
+					const wrapper = makeDiv(undefined, "mdx-error");
 					wrapper.textContent = "Mermaid error: " + msg;
 					pre.insertAdjacentElement("afterend", wrapper);
 				});

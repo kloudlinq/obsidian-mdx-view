@@ -1,4 +1,5 @@
 import { compile } from "@mdx-js/mdx";
+import type { PluggableList } from "unified";
 import remarkGfm from "remark-gfm";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
@@ -62,7 +63,7 @@ export async function compileMdxSource(source: string, options: CompileOptions =
 	// unified's plugin list accepts either a bare attacher or an
 	// [attacher, options] tuple; remarkResolveVaultImages *is* the attacher
 	// (it takes the resolver as its settings and returns a transformer).
-	const remarkPlugins: Array<unknown> = [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm];
+	const remarkPlugins: PluggableList = [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm];
 	if (options.resolveImage) {
 		remarkPlugins.push([remarkResolveVaultImages, options.resolveImage]);
 	}
@@ -71,8 +72,7 @@ export async function compileMdxSource(source: string, options: CompileOptions =
 		const file = await compile(source, {
 			outputFormat: "function-body",
 			development: false,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			remarkPlugins: remarkPlugins as any,
+			remarkPlugins,
 			rehypePlugins: [rehypeHighlight],
 		});
 

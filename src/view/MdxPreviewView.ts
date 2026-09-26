@@ -145,7 +145,7 @@ export class MdxPreviewView extends ItemView {
 		this.iframeEl = null;
 
 		if (!this.filePath) {
-			this.contentEl.createEl("div", {
+			this.contentEl.createDiv({
 				text: "No .mdx file associated with this preview pane.",
 				cls: "mdx-preview-empty",
 			});
@@ -154,7 +154,7 @@ export class MdxPreviewView extends ItemView {
 
 		const file = this.app.vault.getAbstractFileByPath(this.filePath);
 		if (!(file instanceof TFile)) {
-			this.contentEl.createEl("div", {
+			this.contentEl.createDiv({
 				text: `File not found: ${this.filePath}`,
 				cls: "mdx-preview-empty",
 			});
@@ -179,10 +179,10 @@ export class MdxPreviewView extends ItemView {
 				"files you trust.",
 		});
 		const btn = wrap.createEl("button", { text: "Enable MDX preview for this session" });
-		btn.onclick = () => {
+		this.registerDomEvent(btn, "click", () => {
 			this.plugin.sessionConsentGiven = true;
 			void this.renderNow();
-		};
+		});
 	}
 
 	/** Resolves an image reference (vault-root-relative, as produced by
@@ -247,9 +247,10 @@ export class MdxPreviewView extends ItemView {
 			componentsBundleJs,
 		});
 
-		const iframe = this.contentEl.createEl("iframe", { cls: "mdx-preview-iframe" });
-		iframe.setAttribute("sandbox", "allow-scripts");
-		iframe.setAttribute("srcdoc", html);
+		const iframe = this.contentEl.createEl("iframe", {
+			cls: "mdx-preview-iframe",
+			attr: { sandbox: "allow-scripts", srcdoc: html },
+		});
 		this.iframeEl = iframe;
 
 		if (result.warnings.length > 0) {
@@ -293,15 +294,10 @@ export class MdxPreviewView extends ItemView {
 		}
 
 		const safeHtml = sanitizeSnapshotHtml(html);
-		const printFrame = document.createElement("iframe");
-		printFrame.setAttribute("sandbox", ""); // no scripts, no same-origin — static markup only
-		printFrame.style.position = "fixed";
-		printFrame.style.right = "0";
-		printFrame.style.bottom = "0";
-		printFrame.style.width = "0";
-		printFrame.style.height = "0";
-		printFrame.style.border = "none";
-		document.body.appendChild(printFrame);
+		const printFrame = document.body.createEl("iframe", {
+			cls: "mdx-print-frame",
+			attr: { sandbox: "" }, // no scripts, no same-origin — static markup only
+		});
 
 		printFrame.onload = () => {
 			try {

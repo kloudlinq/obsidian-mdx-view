@@ -64,7 +64,7 @@ export default class MdxViewPlugin extends Plugin {
 			return state.file === file.path;
 		});
 		if (existing) {
-			this.app.workspace.revealLeaf(existing);
+			await this.app.workspace.revealLeaf(existing);
 			return;
 		}
 
@@ -74,7 +74,7 @@ export default class MdxViewPlugin extends Plugin {
 			active: true,
 			state: { file: file.path },
 		});
-		this.app.workspace.revealLeaf(leaf);
+		await this.app.workspace.revealLeaf(leaf);
 	}
 
 	/**
@@ -114,7 +114,8 @@ export default class MdxViewPlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const data = (await this.loadData()) as Partial<MdxViewSettings> | undefined;
+		this.settings = { ...DEFAULT_SETTINGS, ...data };
 	}
 
 	async saveSettings(): Promise<void> {

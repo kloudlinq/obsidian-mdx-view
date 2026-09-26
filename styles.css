@@ -48,3 +48,14 @@
 	white-space: pre-wrap;
 	word-break: break-word;
 }
+
+/* Hidden, script-less iframe used only to drive window.print() for the
+ * print/PDF feature (see MdxPreviewView.printPreview). */
+.mdx-print-frame {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	width: 0;
+	height: 0;
+	border: none;
+}

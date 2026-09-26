@@ -1,6 +1,6 @@
 import * as esbuild from "esbuild";
 import process from "node:process";
-import builtins from "builtin-modules";
+import { builtinModules } from "node:module";
 
 const production = process.argv[2] === "production";
 const watch = process.argv[2] === "watch";
@@ -11,7 +11,7 @@ const ctx = await esbuild.context({
 	},
 	entryPoints: ["src/main.ts"],
 	bundle: true,
-	external: ["obsidian", "electron", "@codemirror/*", ...builtins],
+	external: ["obsidian", "electron", "@codemirror/*", ...builtinModules],
 	format: "cjs",
 	platform: "browser", // honor packages' "browser" field (e.g. esbuild-wasm) for mobile safety
 	target: "es2020",
