@@ -1,8 +1,9 @@
 {
   "name": "obsidian-mdx-view",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Create, edit, and preview .mdx files in Obsidian with a sandboxed JSX renderer.",
   "main": "main.js",
+  "license": "MIT",
   "scripts": {
     "build:runtime": "node scripts/build-runtime.mjs",
     "copy:wasm": "node -e \"require('fs').copyFileSync('node_modules/esbuild-wasm/esbuild.wasm','esbuild.wasm')\"",
@@ -15,7 +16,6 @@
     "mdx"
   ],
   "author": "Vijay Kasibhatla",
-  "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.12.7",
     "@types/react": "^18.3.3",
